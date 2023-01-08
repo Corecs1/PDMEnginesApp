@@ -11,7 +11,7 @@ namespace PDMEnginesApp.entity
         public int id { get; set; }
         public string name { get; set; }
         public int amount { get; set; }
-        public List<EngineComponent> components { get; set; }
+        public List<EngineComponent> components { get; set; } = new ();
 
         public int? engineId { get; set; }
         public Engine? engine { get; set; }

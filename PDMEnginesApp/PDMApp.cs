@@ -1,8 +1,6 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.EntityFrameworkCore;
 using PDMEnginesApp.config;
 using PDMEnginesApp.entity;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using System.Data;
 
 namespace PDMEnginesApp
 {
@@ -11,38 +9,19 @@ namespace PDMEnginesApp
         private DataBaseConfig db = new DataBaseConfig();
         private TreeNode parentNode = null;
 
-
         public PDMApp()
         {
             InitializeComponent();
-            initializeDataBase();
-        }
-
-        // Метод инициализирует базу данных
-        private void initializeDataBase()
-        {
-            Engine engine1 = new Engine { name = "engine_1" };
-            Engine engine2 = new Engine { name = "engine_2" };
-            Engine engine3 = new Engine { name = "engine_3" };
-
-            EngineComponent component1 = new EngineComponent { name = "component_1", amount = 2, engine = engine1 };
-            EngineComponent component2 = new EngineComponent { name = "component_2", amount = 5, engine = engine2 };
-            EngineComponent component3 = new EngineComponent { name = "component_3", amount = 1, engine = engine2 };
-
-            EngineComponent component_component1 = new EngineComponent { name = "component_component_1", amount = 4, component = component2};
-            EngineComponent component_component2 = new EngineComponent { name = "component_component_2", amount = 8, component = component2};
-
-            db.engines.AddRange(engine1, engine2, engine3);
-            db.components.AddRange(component1, component2, component3, component_component1, component_component2);
-            db.SaveChanges();
-
             initializeData();
         }
 
         // Метод берёт строки из базы данных и инициализирует в ноды treeView
         private void initializeData()
         {
-            foreach (Engine engine in db.engines)
+            var engines = (from engine in db.engines.Include(e => e.components)
+                         select engine).ToList();
+
+            foreach (Engine engine in engines)
             {
                 parentNode = PdmTree.Nodes.Add(engine.name);
                 initializeComponent(engine, parentNode);
@@ -56,23 +35,13 @@ namespace PDMEnginesApp
 
             foreach (EngineComponent component in engine.components)
             {
-                if (parentNode != null)
+                var component_components = (from p in db.components where p.componentId == component.id
+                             select p).ToList();
+                childNode = parentNode.Nodes.Add(component.name + ", " + component.amount);
+
+                foreach (EngineComponent component_component in component_components)
                 {
-                    childNode = parentNode.Nodes.Add(component.name + ", " + component.amount);
-                    if (component.components != null) 
-                    {
-                        foreach (EngineComponent childComponent in component.components)
-                        {
-                            if (childComponent != null)
-                            {
-                                childNode.Nodes.Add(childComponent.name + ", " + childComponent.amount);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    childNode = PdmTree.Nodes.Add(engine.name);
+                    childNode.Nodes.Add(component_component.name + ", " + component_component.amount);
                 }
             }
         }
@@ -89,6 +58,7 @@ namespace PDMEnginesApp
             }
 
             db.engines.Add(new Engine { name = engineName });
+            db.SaveChanges();
             PdmTree.Nodes.Add(engineName);
             MessageBox.Show("Двигатель добавлен");
         }
@@ -112,15 +82,42 @@ namespace PDMEnginesApp
                     return;
                 }
 
-                // Добавление мне сразу вернет объект компонента и я могу дёрнуть у него id
-                //db.components.Add(new EngineComponent { name = componentName, amount = Int32.Parse(amountOfComponents) });
+                if (PdmTree.SelectedNode.Level == 0)
+                {
+                    var engineName = PdmTree.SelectedNode.Text;
+                    var engine = (from en in db.engines
+                                 where en.name == engineName
+                                 select en).First();
 
-                //string nodeName = PdmTree.SelectedNode.Name;
+                    db.components.Add(new EngineComponent
+                    {
+                        name = componentName,
+                        amount = Int32.Parse(amountOfComponents),
+                        engineId = engine.id
+                    });
+                    db.SaveChanges();
+                    PdmTree.SelectedNode.Nodes.Add(componentName + ", " + amountOfComponents);
+                    MessageBox.Show("Компонент добавлен");
+                }
+                else
+                {
+                    var compName = PdmTree.SelectedNode.Text;
+                    compName = compName.Split(',')[0];
 
-                // 0 - это двигатели, 1 - компоненты двигателей и т.д
-                // по вложенности можно определить: Если 0, то ищем объект по названию в PdmTree, если 1 и выше то...
-                MessageBox.Show(PdmTree.SelectedNode.Level.ToString());
+                    var component = (from comp in db.components
+                                     where comp.name == compName
+                                     select comp).First();
 
+                    db.components.Add(new EngineComponent
+                    {
+                        name = componentName,
+                        amount = Int32.Parse(amountOfComponents),
+                        componentId = component.id
+                    });
+                    db.SaveChanges();
+                    PdmTree.SelectedNode.Nodes.Add(componentName + ", " + amountOfComponents);
+                    MessageBox.Show("Компонент добавлен");
+                }
             } 
             else
             {
@@ -131,7 +128,63 @@ namespace PDMEnginesApp
         // Метод переименовывает компонент из базы данных и Node
         private void rename(object sender, EventArgs e)
         {
+            if (PdmTree.SelectedNode != null)
+            {
+                if (PdmTree.SelectedNode.Level == 0)
+                {
+                    string engineName = NameField.Text;
 
+                    if (engineName == "")
+                    {
+                        MessageBox.Show("Введите название двигателя");
+                        return;
+                    }
+
+                    var engName = PdmTree.SelectedNode.Text;
+                    var engine = (from en in db.engines
+                                  where en.name == engName
+                                  select en).First();
+                    engine.name = engineName;
+
+                    db.engines.Update(engine);
+                    db.SaveChanges();
+                    PdmTree.SelectedNode.Text = (engineName);
+                    MessageBox.Show("Двигатель изменен");
+                }    
+                else
+                {
+                    string componentName = NameField.Text;
+                    string amountOfComponents = AmountField.Text;
+
+                    if (componentName == "")
+                    {
+                        MessageBox.Show("Введите название компонента");
+                        return;
+                    }
+                    else if (amountOfComponents == "")
+                    {
+                        MessageBox.Show("Укажите колличество компонентов");
+                        return;
+                    }
+
+                    var compName = PdmTree.SelectedNode.Text;
+                    compName = compName.Split(',')[0];
+                    var component = (from comp in db.components
+                                     where comp.name == compName
+                                     select comp).First();
+                    component.name = componentName;
+                    component.amount = Int32.Parse(amountOfComponents);
+
+                    db.components.Update(component);
+                    db.SaveChanges();
+                    PdmTree.SelectedNode.Text = (componentName + ", " + amountOfComponents);
+                    MessageBox.Show("Компонент изменен");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Выберите поле для добавления компонента");
+            }
         }
 
         // Метод удаляет компонент из базы данных и Node
