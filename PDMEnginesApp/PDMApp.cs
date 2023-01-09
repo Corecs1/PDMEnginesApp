@@ -78,7 +78,7 @@ namespace PDMEnginesApp
                 }
                 else if (amountOfComponents == "")
                 {
-                    MessageBox.Show("Укажите колличество компонентов");
+                    MessageBox.Show("Укажите количество компонентов");
                     return;
                 }
 
@@ -163,7 +163,7 @@ namespace PDMEnginesApp
                     }
                     else if (amountOfComponents == "")
                     {
-                        MessageBox.Show("Укажите колличество компонентов");
+                        MessageBox.Show("Укажите количество компонентов");
                         return;
                     }
 

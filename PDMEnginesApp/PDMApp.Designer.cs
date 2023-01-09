@@ -66,7 +66,7 @@
             // 
             this.AmountField.Location = new System.Drawing.Point(369, 83);
             this.AmountField.Name = "AmountField";
-            this.AmountField.PlaceholderText = "Колличество";
+            this.AmountField.PlaceholderText = "Количество";
             this.AmountField.Size = new System.Drawing.Size(189, 23);
             this.AmountField.TabIndex = 6;
             // 
