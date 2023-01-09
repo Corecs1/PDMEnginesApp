@@ -28,7 +28,7 @@ namespace PDMEnginesApp
             }
         }
         
-        // Метод проходится по компонентам двигателя и инициализирует из в childTreeView
+        // Метод проходится по компонентам двигателя и инициализирует их в childTreeView
         private void initializeComponent(Engine engine, TreeNode parentNode)
         {
             TreeNode childNode = null;
@@ -125,7 +125,7 @@ namespace PDMEnginesApp
             }
         }
 
-        // Метод переименовывает компонент из базы данных и Node
+        // Метод переименовывает двигатель или компонент из базы данных и Node
         private void rename(object sender, EventArgs e)
         {
             if (PdmTree.SelectedNode != null)
@@ -187,10 +187,41 @@ namespace PDMEnginesApp
             }
         }
 
-        // Метод удаляет компонент из базы данных и Node
+        // Метод удаляет двигатель или компонент из базы данных и Node
         private void delete(object sender, EventArgs e)
         {
+            if (PdmTree.SelectedNode != null)
+            {
+                if (PdmTree.SelectedNode.Level == 0)
+                {
+                    var engineName = PdmTree.SelectedNode.Text;
+                    var engine = (from en in db.engines
+                                  where en.name == engineName
+                                  select en).First();
 
+                    db.engines.Remove(engine);
+                    db.SaveChanges();
+                    PdmTree.SelectedNode.Remove();
+                    MessageBox.Show("Двигатель удалён");
+                }
+                else
+                {
+                    var componentName = PdmTree.SelectedNode.Text;
+                    componentName = componentName.Split(',')[0];
+                    var component = (from comp in db.components
+                                     where comp.name == componentName
+                                     select comp).First();
+                    
+                    db.components.Remove(component);
+                    db.SaveChanges();
+                    PdmTree.SelectedNode.Remove();
+                    MessageBox.Show("Компонент удалён");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Выберите поле для добавления компонента");
+            }
         }
     }
 }
