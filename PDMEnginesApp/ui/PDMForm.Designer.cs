@@ -1,6 +1,6 @@
 ﻿namespace PDMEnginesApp
 {
-    partial class PDMApp
+    partial class PDMForm
     {
         /// <summary>
         /// Required designer variable.

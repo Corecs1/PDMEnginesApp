@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PDMEnginesApp.entity;
 using PDMEnginesApp.model.entity;
 
 namespace PDMEnginesApp.config

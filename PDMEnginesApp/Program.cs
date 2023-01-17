@@ -1,5 +1,3 @@
-using PDMEnginesApp.entity;
-
 namespace PDMEnginesApp
 {
     internal static class Program

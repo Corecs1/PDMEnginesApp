@@ -1,10 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PDMEnginesApp.config;
+﻿using PDMEnginesApp.config;
+using PDMEnginesApp.entity;
 using PDMEnginesApp.exception;
-using PDMEnginesApp.model.entity;
-using System;
-using System.Linq;
-using System.Windows.Forms;
 
 namespace PDMEnginesApp
 {
@@ -32,23 +28,23 @@ namespace PDMEnginesApp
             //    initializeComponent(engine, parentNode);
             //}
         }
-        
+
         // Метод проходится по компонентам двигателя и инициализирует их в childTreeView
         private void initializeComponent(Engine engine, TreeNode parentNode)
         {
-        //    TreeNode childNode = null;
+            //    TreeNode childNode = null;
 
-        //    foreach (EngineComponent component in engine.components)
-        //    {
-        //        var component_components = (from p in db.components where p.componentId == component.id
-        //                     select p).ToList();
-        //        childNode = parentNode.Nodes.Add(component.name + ", " + component.amount);
+            //    foreach (EngineComponent component in engine.components)
+            //    {
+            //        var component_components = (from p in db.components where p.componentId == component.id
+            //                     select p).ToList();
+            //        childNode = parentNode.Nodes.Add(component.name + ", " + component.amount);
 
-        //        foreach (EngineComponent component_component in component_components)
-        //        {
-        //            childNode.Nodes.Add(component_component.name + ", " + component_component.amount);
-        //        }
-        //    }
+            //        foreach (EngineComponent component_component in component_components)
+            //        {
+            //            childNode.Nodes.Add(component_component.name + ", " + component_component.amount);
+            //        }
+            //    }
         }
 
         // Метод добавляет двигатель в базу данных и Node
@@ -56,7 +52,7 @@ namespace PDMEnginesApp
         {
             var engineName = NameField.Text;
 
-            try 
+            try
             {
                 emptyNameFieldCheck(engineName);
                 dublicateEngineChech(engineName);
@@ -66,7 +62,7 @@ namespace PDMEnginesApp
                 PdmTree.Nodes.Add(engineName);
                 MessageBox.Show("Двигатель добавлен");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return;
             }
@@ -273,7 +269,7 @@ namespace PDMEnginesApp
             //        var component = (from comp in db.components
             //                         where comp.name == componentName
             //                         select comp).First();
-                    
+
             //        db.components.Remove(component);
             //        db.SaveChanges();
             //        PdmTree.SelectedNode.Remove();
@@ -287,7 +283,7 @@ namespace PDMEnginesApp
         }
 
         // Проверка на пустое поле наименования
-        private void emptyNameFieldCheck(string name) 
+        private void emptyNameFieldCheck(string name)
         {
             if (name == "" || name == null)
             {
@@ -305,13 +301,13 @@ namespace PDMEnginesApp
         }
 
         // Проверка на наличие дубликата двигателей
-        private void dublicateEngineChech(string name) 
+        private void dublicateEngineChech(string name)
         {
-            var engine = (from e in db.engines 
-                        where e.name == name
-                        select e).ToList();
-            
-            if (engine.Count != 0) 
+            var engine = (from e in db.engines
+                          where e.name == name
+                          select e).ToList();
+
+            if (engine.Count != 0)
             {
                 throw new DublicateException(name);
             }
@@ -321,8 +317,8 @@ namespace PDMEnginesApp
         private void dublicateComponentChech(string name)
         {
             var component = (from c in db.components
-                         where c.name == name
-                         select c).ToList();
+                             where c.name == name
+                             select c).ToList();
 
             if (component.Count != 0)
             {
@@ -331,9 +327,9 @@ namespace PDMEnginesApp
         }
 
         // Проверка на наличие выбранной ноды
-        private void selectedNodeCheck() 
+        private void selectedNodeCheck()
         {
-            if (PdmTree.SelectedNode == null) 
+            if (PdmTree.SelectedNode == null)
             {
                 throw new NonSelectedNodeException();
             }

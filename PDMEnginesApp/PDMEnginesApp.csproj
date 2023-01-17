@@ -45,4 +45,9 @@
     </Compile>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="controller\" />
+    <Folder Include="model\dao\" />
+  </ItemGroup>
+
 </Project>
