@@ -9,6 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="technical specifications.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>technical specifications.tt</DependentUpon>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.1" />
   </ItemGroup>
 
@@ -16,6 +24,25 @@
     <Reference Include="MySql.Data">
       <HintPath>C:\Program Files (x86)\MySQL\Connector NET 8.0\Assemblies\net6.0\MySql.Data.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="technical specifications.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>technical specifications.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="technical specifications.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>technical specifications.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>
