@@ -9,6 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="controller\**" />
+    <EmbeddedResource Remove="controller\**" />
+    <None Remove="controller\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="technical specifications.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -43,11 +49,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>technical specifications.tt</DependentUpon>
     </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="controller\" />
-    <Folder Include="model\dao\" />
   </ItemGroup>
 
 </Project>

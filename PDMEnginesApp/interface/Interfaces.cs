@@ -2,6 +2,9 @@
 
 public interface IPDMView
 {
+    string NameField { get; }
+    string AmountField { get; }
+    TreeView TreeView { get; }
     void btnAddEngine_Click(object sender, EventArgs e);
 
     void btnAddComponent_Click(object sender, EventArgs e);
@@ -25,14 +28,17 @@ public interface IPDMService
     ICollection<Engine> GetEngines();
     ICollection<EngineComponent> GetComponents();
 
-    void AddEngine(Engine engine);
-    void AddComponent(EngineComponent component);
+    Engine GetEngine(string engineName);
+    EngineComponent GetComponent(string componentName);
 
-    void RenameEngine(Engine engine);
-    void RenameComponent(EngineComponent component);
+    void AddEngine(string engineName);
+    void AddComponentToEngine(Engine engine, string componentName, string amountOfComponents);
+    void AddComponentToComponent(EngineComponent component, string componentName, string amountOfComponents);
 
-    void DeleteEngine(Engine engine);
-    void DeleteComponent(EngineComponent component);
+    void RenameEngine(string engineName);
+    void RenameComponent(string componentName, string amount);
 
+    void DeleteEngine(string engineName);
+    void DeleteComponent(string componentName, string amount);
 }
 

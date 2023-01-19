@@ -1,16 +1,18 @@
-﻿namespace PDMEnginesApp.entity
+﻿using PDMEnginesApp.model.entity;
+
+namespace PDMEnginesApp.entity
 {
     public class EngineComponent
     {
         public EngineComponent()
         {
-            this.Components = new HashSet<ComponentComponentAmount>();
-            this.Engines = new HashSet<EngineComponentAmount>();
+            this.ComponentComponentAmounts = new HashSet<ComponentComponentAmount>();
+            this.EngineComponentAmounts = new HashSet<EngineComponentAmount>();
         }
 
         public int id { get; set; }
         public string name { get; set; }
-        public virtual ICollection<ComponentComponentAmount> Components { get; set; }
-        public virtual ICollection<EngineComponentAmount> Engines { get; set; }
+        public virtual ICollection<ComponentComponentAmount> ComponentComponentAmounts { get; set; }
+        public virtual ICollection<EngineComponentAmount> EngineComponentAmounts { get; set; }
     }
 }
