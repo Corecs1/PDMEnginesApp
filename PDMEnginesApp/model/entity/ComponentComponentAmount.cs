@@ -9,7 +9,7 @@ namespace PDMEnginesApp.model.entity
         public int secondComponentId { get; set; }
         public int amount { get; set; }
 
-     //   public virtual EngineComponent firstComponent { get; set; }
-     //   public virtual EngineComponent secondComponent { get; set; }
+        //public virtual EngineComponent firstComponent { get; set; }
+        //public virtual EngineComponent secondComponent { get; set; }
     }
 }

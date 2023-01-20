@@ -84,7 +84,6 @@ namespace PDMEnginesApp.model.service
                 
                 // Добавляем новый компонент
                 var newComponent = AddComponent(componentName);
-                components.Add(newComponent);
 
                 // Добавляем связь компонента и двигателя
                 engine.EngineComponentAmount.Add(new EngineComponentAmount { engine= engine, component=newComponent, amount = Int32.Parse(amountOfComponents) });
@@ -111,26 +110,27 @@ namespace PDMEnginesApp.model.service
 
                 // Добавляем новый компонент
                 var newComponent = AddComponent(componentName);
-                components.Add(newComponent);
 
                 // Добавляем связь компонента и компонента
-                component.ComponentComponentAmounts.Add(new ComponentComponentAmount { firstComponentId = component.id, secondComponent = newComponent, amount = Int32.Parse(amountOfComponents) });
+                component.ComponentComponentAmounts.Add(new ComponentComponentAmount { firstComponentId = component.id, secondComponentId = newComponent.id, amount = Int32.Parse(amountOfComponents) });
                 SaveChanges();
             }
             catch (Exception ex)
             {
-                // Добавляем существующий компонент
+                // Берем существующий компонент
                 var exsistComponent = GetComponent(componentName);
 
-                // Добавляем связь компонента и двигателя
-                component.ComponentComponentAmounts.Add(new ComponentComponentAmount { firstComponentId = component.id, secondComponent = exsistComponent, amount = Int32.Parse(amountOfComponents) });
+                // Добавляем связь компонента и компонента
+                component.ComponentComponentAmounts.Add(new ComponentComponentAmount { firstComponentId = component.id, secondComponentId = exsistComponent.id, amount = Int32.Parse(amountOfComponents) });
                 SaveChanges();
             }
         }
 
         private EngineComponent AddComponent(string componentName)
         {
-            return components.Add(new EngineComponent { name = componentName}).Entity;
+            var comp = components.Add(new EngineComponent { name = componentName }).Entity;
+            SaveChanges();
+            return comp;
         }
 
         public void RenameEngine(string engineName)

@@ -12,6 +12,7 @@ namespace PDMEnginesApp.entity
 
         public int id { get; set; }
         public string name { get; set; }
+
         public virtual ICollection<ComponentComponentAmount> ComponentComponentAmounts { get; set; }
         public virtual ICollection<EngineComponentAmount> EngineComponentAmounts { get; set; }
     }
