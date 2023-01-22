@@ -35,8 +35,8 @@ public interface IPDMService
     void AddComponentToEngine(Engine engine, string componentName, string amountOfComponents);
     void AddComponentToComponent(EngineComponent component, string componentName, string amountOfComponents);
 
-    void RenameEngine(string engineName);
-    void RenameComponent(string componentName, string amount);
+    void RenameEngine(string oldEngineName, string newEngineName);
+    void RenameComponent(string oldComponentName, string newComponentName);
 
     void DeleteEngine(string engineName);
     void DeleteComponent(string componentName, string amount);

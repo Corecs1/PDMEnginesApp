@@ -80,6 +80,7 @@ namespace PDMEnginesApp.model.service
             //Проверка на наличие компонента в БД
             try
             {
+                dublicateEngineCheck(componentName);
                 dublicateComponentCheck(componentName);
                 
                 // Добавляем новый компонент
@@ -103,9 +104,9 @@ namespace PDMEnginesApp.model.service
         public void AddComponentToComponent(EngineComponent component, string componentName, string amountOfComponents)
         {
             //Проверка на наличие компонента в БД
-            //TODO Сделать маппинг по объектам firstComponent, secondComponent
             try
             {
+                dublicateEngineCheck(componentName);
                 dublicateComponentCheck(componentName);
 
                 // Добавляем новый компонент
@@ -133,14 +134,42 @@ namespace PDMEnginesApp.model.service
             return comp;
         }
 
-        public void RenameEngine(string engineName)
+        public void RenameEngine(string oldEngineName, string newEngineName)
         {
-            throw new NotImplementedException();
+            try
+            {
+                dublicateEngineCheck(newEngineName);
+                dublicateComponentCheck(newEngineName);
+
+                var engine = GetEngine(oldEngineName);
+                engine.name = newEngineName;
+
+                engines.Update(engine);
+                SaveChanges();
+            } catch (Exception ex)
+            {
+                throw new InvalidOperationException();
+            }
         }
 
-        public void RenameComponent(string componentName, string amount)
+        public void RenameComponent(string oldComponentName, string newComponentName)
         {
-            throw new NotImplementedException();
+            try
+            {
+                dublicateEngineCheck(newComponentName);
+                dublicateComponentCheck(newComponentName);
+
+                var component = GetComponent(oldComponentName);
+                component.name = newComponentName;
+
+                components.Update(component);
+                SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException();
+            }
+
         }
 
         public void DeleteEngine(string engineName)

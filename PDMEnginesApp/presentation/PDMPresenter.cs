@@ -94,65 +94,58 @@ namespace PDMEnginesApp.presentation
 
         public void Rename()
         {
-            //if (PdmTree.SelectedNode != null)
-            //{
-            //    if (PdmTree.SelectedNode.Level == 0)
-            //    {
-            //        string engineName = NameField.Text;
+            try
+            {
+                string newName = view.NameField;
+                string oldName = view.TreeView.SelectedNode.Text.Split(",")[0];
+                
+                selectedNodeCheck();
+                emptyNameFieldCheck(newName);
 
-            //        if (engineName == "")
-            //        {
-            //            MessageBox.Show("Введите название двигателя");
-            //            return;
-            //        }
+                if (view.TreeView.SelectedNode.Level == 0)
+                {
+                    service.RenameEngine(oldName, newName);
 
-            //        var engName = PdmTree.SelectedNode.Text;
-            //        var engine = (from en in db.engines
-            //                      where en.name == engName
-            //                      select en).First();
-            //        engine.name = engineName;
+                    view.TreeView.SelectedNode.Text = (newName);
+                    MessageBox.Show("Двигатель изменен");
+                }
+                else
+                {
+                    service.RenameComponent(oldName, newName);
 
-            //        db.engines.Update(engine);
-            //        db.SaveChanges();
-            //        PdmTree.SelectedNode.Text = (engineName);
-            //        MessageBox.Show("Двигатель изменен");
-            //    }    
-            //    else
-            //    {
-            //        string componentName = NameField.Text;
-            //        string amountOfComponents = AmountField.Text;
+                    foreach (TreeNode tree in view.TreeView.Nodes)
+                    {
+                        if (view.TreeView.SelectedNode.Level == 1)
+                        {
+                            var node = (from n in tree.Nodes.Cast<TreeNode>()
+                                        where n.Text.Split(",")[0].Equals(oldName)
+                                        select n).FirstOrDefault();
+                            var nodeArray = node.Text.Split(',');
+                            node.Text = ($"{newName}, {nodeArray[1]}");
 
-            //        if (componentName == "")
-            //        {
-            //            MessageBox.Show("Введите название компонента");
-            //            return;
-            //        }
-            //        else if (amountOfComponents == "")
-            //        {
-            //            MessageBox.Show("Укажите количество компонентов");
-            //            return;
-            //        }
-
-            //        var compName = PdmTree.SelectedNode.Text;
-            //        compName = compName.Split(',')[0];
-            //        var component = (from comp in db.components
-            //                         where comp.name == compName
-            //                         select comp).First();
-            //        component.name = componentName;
-            //        component.amount = Int32.Parse(amountOfComponents);
-
-            //        db.components.Update(component);
-            //        db.SaveChanges();
-            //        PdmTree.SelectedNode.Text = (componentName + ", " + amountOfComponents);
-            //        MessageBox.Show("Компонент изменен");
-            //    }
-            //}
-            //else
-            //{
-            //    MessageBox.Show("Выберите поле для добавления компонента");
-            //}
+                        }
+                        else if (view.TreeView.SelectedNode.Level == 2)
+                        {
+                            foreach (TreeNode nestedTree in tree.Nodes)
+                            {
+                                var node = (from n in nestedTree.Nodes.Cast<TreeNode>()
+                                            where n.Text.Split(",")[0].Equals(oldName)
+                                            select n).FirstOrDefault();
+                                var nodeArray = node.Text.Split(',');
+                                node.Text = ($"{newName}, {nodeArray[1]}");
+                            }
+                        }
+                    }
+                    MessageBox.Show("Компонент изменен");
+                }
+            }
+            catch (Exception ex)
+            {
+                return;
+            }
         }
-
+    
+        //TODO Сделать каскадное удаление
         public void Delete()
         {
             //if (PdmTree.SelectedNode != null)
