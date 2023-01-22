@@ -1,10 +1,5 @@
 ﻿using PDMEnginesApp.entity;
 using PDMEnginesApp.exception;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PDMEnginesApp.presentation
 {
@@ -30,7 +25,7 @@ namespace PDMEnginesApp.presentation
             
             try
             {
-                emptyNameFieldCheck(engineName);
+                EmptyNameFieldCheck(engineName);
                 service.AddEngine(engineName);
                 view.TreeView.Nodes.Add(engineName);
 
@@ -49,16 +44,16 @@ namespace PDMEnginesApp.presentation
 
             try
             {
-                selectedNodeCheck();
-                emptyNameFieldCheck(componentName);
-                emptyAmountFieldCheck(amountOfComponents);
+                SelectedNodeCheck();
+                EmptyNameFieldCheck(componentName);
+                EmptyAmountFieldCheck(amountOfComponents);
 
                 if (view.TreeView.SelectedNode.Level == 0)
                 {
                     var enginename = view.TreeView.SelectedNode.Text;
                     var engine = service.GetEngine(enginename);
 
-                    addComponentToEngine(engine, componentName, amountOfComponents);
+                    AddComponentToEngine(engine, componentName, amountOfComponents);
                 }
                 else
                 {
@@ -67,7 +62,7 @@ namespace PDMEnginesApp.presentation
 
                     var component = service.GetComponent(selectedCompName);
 
-                    addComponentToComponent(component, componentName, amountOfComponents);
+                    AddComponentToComponent(component, componentName, amountOfComponents);
                 }
             }
             catch (Exception ex)
@@ -77,17 +72,21 @@ namespace PDMEnginesApp.presentation
         }
 
         // Метод добавляет компонент к двигателю
-        private void addComponentToEngine(Engine engine, string componentName, string amountOfComponents)
+        private void AddComponentToEngine(Engine engine, string componentName, string amountOfComponents)
         {
             service.AddComponentToEngine(engine, componentName, amountOfComponents);
-            view.TreeView.SelectedNode.Nodes.Add(componentName + ", " + amountOfComponents);
-            MessageBox.Show("Компонент добавлен");
+            AddTreeNodeComponent(componentName, amountOfComponents);
         }
 
         // Метод добавляет компонент к компоненту
-        private void addComponentToComponent(EngineComponent component, string componentName, string amountOfComponents)
+        private void AddComponentToComponent(EngineComponent component, string componentName, string amountOfComponents)
         {
             service.AddComponentToComponent(component, componentName, amountOfComponents);
+            AddTreeNodeComponent(componentName, amountOfComponents);
+        }
+
+        private void AddTreeNodeComponent(string componentName, string amountOfComponents)
+        {
             view.TreeView.SelectedNode.Nodes.Add(componentName + ", " + amountOfComponents);
             MessageBox.Show("Компонент добавлен");
         }
@@ -99,8 +98,8 @@ namespace PDMEnginesApp.presentation
                 string newName = view.NameField;
                 string oldName = view.TreeView.SelectedNode.Text.Split(",")[0];
                 
-                selectedNodeCheck();
-                emptyNameFieldCheck(newName);
+                SelectedNodeCheck();
+                EmptyNameFieldCheck(newName);
 
                 if (view.TreeView.SelectedNode.Level == 0)
                 {
@@ -117,22 +116,13 @@ namespace PDMEnginesApp.presentation
                     {
                         if (view.TreeView.SelectedNode.Level == 1)
                         {
-                            var node = (from n in tree.Nodes.Cast<TreeNode>()
-                                        where n.Text.Split(",")[0].Equals(oldName)
-                                        select n).FirstOrDefault();
-                            var nodeArray = node.Text.Split(',');
-                            node.Text = ($"{newName}, {nodeArray[1]}");
-
+                            ReplaceTreeNodeComponentName(newName, oldName, tree);
                         }
                         else if (view.TreeView.SelectedNode.Level == 2)
                         {
                             foreach (TreeNode nestedTree in tree.Nodes)
                             {
-                                var node = (from n in nestedTree.Nodes.Cast<TreeNode>()
-                                            where n.Text.Split(",")[0].Equals(oldName)
-                                            select n).FirstOrDefault();
-                                var nodeArray = node.Text.Split(',');
-                                node.Text = ($"{newName}, {nodeArray[1]}");
+                                ReplaceTreeNodeComponentName(newName, oldName, nestedTree);
                             }
                         }
                     }
@@ -144,46 +134,74 @@ namespace PDMEnginesApp.presentation
                 return;
             }
         }
-    
-        //TODO Сделать каскадное удаление
+
+        private void ReplaceTreeNodeComponentName(string newName, string oldName, TreeNode nestedTree)
+        {
+            var node = (from n in nestedTree.Nodes.Cast<TreeNode>()
+                        where n.Text.Split(",")[0].Equals(oldName)
+                        select n).FirstOrDefault();
+            if (node != null)
+            {
+                var nodeArray = node.Text.Split(',');
+                node.Text = ($"{newName}, {nodeArray[1]}");
+            }
+        }
+
+        //TODO Удаление компонента должно приводить к удалению всех вложенных компонентов, если они не включены в другие составы.
         public void Delete()
         {
-            //if (PdmTree.SelectedNode != null)
-            //{
-            //    if (PdmTree.SelectedNode.Level == 0)
-            //    {
-            //        var engineName = PdmTree.SelectedNode.Text;
-            //        var engine = (from en in db.engines
-            //                      where en.name == engineName
-            //                      select en).First();
+            try
+            {
+                SelectedNodeCheck();
+                string name = view.TreeView.SelectedNode.Text.Split(",")[0];
 
-            //        db.engines.Remove(engine);
-            //        db.SaveChanges();
-            //        PdmTree.SelectedNode.Remove();
-            //        MessageBox.Show("Двигатель удалён");
-            //    }
-            //    else
-            //    {
-            //        var componentName = PdmTree.SelectedNode.Text;
-            //        componentName = componentName.Split(',')[0];
-            //        var component = (from comp in db.components
-            //                         where comp.name == componentName
-            //                         select comp).First();
+                if (view.TreeView.SelectedNode.Level == 0)
+                {
+                    service.DeleteEngine(name);
 
-            //        db.components.Remove(component);
-            //        db.SaveChanges();
-            //        PdmTree.SelectedNode.Remove();
-            //        MessageBox.Show("Компонент удалён");
-            //    }
-            //}
-            //else
-            //{
-            //    MessageBox.Show("Выберите поле для добавления компонента");
-            //}
+                    view.TreeView.SelectedNode.Remove();
+                    MessageBox.Show("Двигатель удален");
+                }
+                else
+                {
+                    service.DeleteComponent(name);
+
+                    foreach (TreeNode tree in view.TreeView.Nodes)
+                    {
+                        if (view.TreeView.SelectedNode.Level == 1)
+                        {
+                            DeleteTreeNodeComponent(name, tree);
+                        }
+                        else if (view.TreeView.SelectedNode.Level == 2)
+                        {
+                            foreach (TreeNode nestedTree in tree.Nodes)
+                            {
+                                DeleteTreeNodeComponent(name, tree);
+                            }
+                        }
+                    }
+                    MessageBox.Show("Компонент удалён");
+                }
+            }
+            catch (Exception ex)
+            {
+                return;
+            }
+        }
+
+        private void DeleteTreeNodeComponent(string name, TreeNode tree)
+        {
+            var node = (from n in tree.Nodes.Cast<TreeNode>()
+                        where n.Text.Split(",")[0].Equals(name)
+                        select n).FirstOrDefault();
+            if (node != null)
+            {
+                node.Remove();
+            }
         }
 
         // Проверка на пустое поле наименования
-        private void emptyNameFieldCheck(string name)
+        private void EmptyNameFieldCheck(string name)
         {
             if (name == "" || name == null)
             {
@@ -192,7 +210,7 @@ namespace PDMEnginesApp.presentation
         }
 
         // Проверка на пустое поле количества
-        private void emptyAmountFieldCheck(string amount)
+        private void EmptyAmountFieldCheck(string amount)
         {
             if (amount == "" || amount == null)
             {
@@ -201,7 +219,7 @@ namespace PDMEnginesApp.presentation
         }
 
         // Проверка на наличие выбранной ноды
-        private void selectedNodeCheck()
+        private void SelectedNodeCheck()
         {
             if (view.TreeView.SelectedNode == null)
             {

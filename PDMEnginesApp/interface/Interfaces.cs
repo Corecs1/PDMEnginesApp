@@ -39,6 +39,6 @@ public interface IPDMService
     void RenameComponent(string oldComponentName, string newComponentName);
 
     void DeleteEngine(string engineName);
-    void DeleteComponent(string componentName, string amount);
+    void DeleteComponent(string componentName);
 }
 

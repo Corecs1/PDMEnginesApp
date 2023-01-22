@@ -1,5 +1,4 @@
 ﻿using PDMEnginesApp.entity;
-using PDMEnginesApp.exception;
 using PDMEnginesApp.model.service;
 using PDMEnginesApp.presentation;
 

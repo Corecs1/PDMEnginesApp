@@ -66,7 +66,7 @@ namespace PDMEnginesApp.model.service
         {
             try
             {
-                dublicateEngineCheck(engineName);
+                DublicateEngineCheck(engineName);
                 engines.Add(new Engine { name = engineName });
                 SaveChanges();
             }
@@ -80,8 +80,8 @@ namespace PDMEnginesApp.model.service
             //Проверка на наличие компонента в БД
             try
             {
-                dublicateEngineCheck(componentName);
-                dublicateComponentCheck(componentName);
+                DublicateEngineCheck(componentName);
+                DublicateComponentCheck(componentName);
                 
                 // Добавляем новый компонент
                 var newComponent = AddComponent(componentName);
@@ -106,8 +106,9 @@ namespace PDMEnginesApp.model.service
             //Проверка на наличие компонента в БД
             try
             {
-                dublicateEngineCheck(componentName);
-                dublicateComponentCheck(componentName);
+                DublicateEngineCheck(componentName);
+                DublicateComponentCheck(componentName);
+                //TODO Когда добавляем существующий компонент верхнего уровня в компонент нижнего уровня
 
                 // Добавляем новый компонент
                 var newComponent = AddComponent(componentName);
@@ -138,8 +139,8 @@ namespace PDMEnginesApp.model.service
         {
             try
             {
-                dublicateEngineCheck(newEngineName);
-                dublicateComponentCheck(newEngineName);
+                DublicateEngineCheck(newEngineName);
+                DublicateComponentCheck(newEngineName);
 
                 var engine = GetEngine(oldEngineName);
                 engine.name = newEngineName;
@@ -156,8 +157,8 @@ namespace PDMEnginesApp.model.service
         {
             try
             {
-                dublicateEngineCheck(newComponentName);
-                dublicateComponentCheck(newComponentName);
+                DublicateEngineCheck(newComponentName);
+                DublicateComponentCheck(newComponentName);
 
                 var component = GetComponent(oldComponentName);
                 component.name = newComponentName;
@@ -172,18 +173,24 @@ namespace PDMEnginesApp.model.service
 
         }
 
+        // TODO Сделать каскадное удаление, если его компоенты нигде больше не используются
         public void DeleteEngine(string engineName)
         {
-            throw new NotImplementedException();
+            var engine = GetEngine(engineName);
+            engines.Remove(engine);
+            SaveChanges();
         }
 
-        public void DeleteComponent(string componentName, string amount)
+        // TODO Сделать каскадное удаление, если его компоенты нигде больше не используются
+        public void DeleteComponent(string componentName)
         {
-            throw new NotImplementedException();
+            var component = GetComponent(componentName);
+            components.Remove(component);
+            SaveChanges();
         }
 
         // Проверка на наличие дубликата двигателя
-        private void dublicateEngineCheck(string engineName)
+        private void DublicateEngineCheck(string engineName)
         {
             var engine = GetEngine(engineName);
 
@@ -194,7 +201,7 @@ namespace PDMEnginesApp.model.service
         }
 
         // Проверка на наличие дубликата компонента
-        private void dublicateComponentCheck(string componentName)
+        private void DublicateComponentCheck(string componentName)
         {
             var component = GetComponent(componentName);
 
