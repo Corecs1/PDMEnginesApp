@@ -16,6 +16,7 @@ public interface IPDMView
 
 public interface IPDMPresenter
 {
+    void InitData();
     void AddEngine();
     void AddComponent();
     void Rename();
@@ -31,12 +32,12 @@ public interface IPDMService
     Engine GetEngine(string engineName);
     EngineComponent GetComponent(string componentName);
 
-    void AddEngine(string engineName);
-    void AddComponentToEngine(Engine engine, string componentName, string amountOfComponents);
-    void AddComponentToComponent(EngineComponent component, string componentName, string amountOfComponents);
+    bool AddEngine(string engineName);
+    bool AddComponentToEngine(string engineName, string componentName, string amountOfComponents);
+    bool AddComponentToComponent(string componentName, string nestedComponentName, string amountOfComponents);
 
-    void RenameEngine(string oldEngineName, string newEngineName);
-    void RenameComponent(string oldComponentName, string newComponentName);
+    bool RenameEngine(string oldEngineName, string newEngineName);
+    bool RenameComponent(string oldComponentName, string newComponentName);
 
     void DeleteEngine(string engineName);
     void DeleteComponent(string componentName);

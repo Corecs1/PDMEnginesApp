@@ -18,12 +18,14 @@ namespace PDMEnginesApp
         {
             InitializeComponent();
             presenter = new PDMPresenter(this, new DataBaseService());
-            initializeData();
+            InitializeData();
         }
 
+        // TODO Сделать инициализацию данных 
         // Метод берёт строки из базы данных и инициализирует в ноды treeView
-        private void initializeData()
+        private void InitializeData()
         {
+            //presenter.InitData();
             //private TreeNode parentNode;
 
             //var engines = (from engine in db.engines.Include(e => e.components)
@@ -37,7 +39,7 @@ namespace PDMEnginesApp
         }
 
         // Метод проходится по компонентам двигателя и инициализирует их в childTreeView
-        private void initializeComponents(Engine engine, TreeNode parentNode)
+        private void InitializeComponents(Engine engine, TreeNode parentNode)
         {
             //    TreeNode childNode = null;
 

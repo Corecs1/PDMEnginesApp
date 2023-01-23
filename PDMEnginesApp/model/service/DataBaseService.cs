@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PDMEnginesApp.entity;
-using PDMEnginesApp.exception;
 using PDMEnginesApp.model.entity;
 
 namespace PDMEnginesApp.model.service
@@ -32,6 +31,7 @@ namespace PDMEnginesApp.model.service
         {
             throw new NotImplementedException();
         }
+
         public Engine GetEngine(string engineName)
         {
             try
@@ -40,8 +40,8 @@ namespace PDMEnginesApp.model.service
                               where e.name == engineName
                               select e).First();
                 return engine;
-            } 
-            catch (InvalidOperationException ex) 
+            }
+            catch (InvalidOperationException ex)
             {
                 return null;
             }
@@ -62,70 +62,92 @@ namespace PDMEnginesApp.model.service
             }
         }
 
-        public void AddEngine(string engineName)
-        {
-            try
-            {
-                DublicateEngineCheck(engineName);
-                engines.Add(new Engine { name = engineName });
-                SaveChanges();
-            }
-            catch (Exception ex) 
-            {
-                throw new InvalidOperationException();
-            }
-        }
-        public void AddComponentToEngine(Engine engine, string componentName, string amountOfComponents)
+        public bool AddEngine(string engineName)
         {
             //Проверка на наличие компонента в БД
-            try
+            if (!EngineExsistCheck(engineName) && !ComponentExsistCheck(engineName))
             {
-                DublicateEngineCheck(componentName);
-                DublicateComponentCheck(componentName);
-                
+                engines.Add(new Engine { name = engineName });
+                SaveChanges();
+                return true;
+            }
+            return false;
+        }
+
+        public bool AddComponentToEngine(string engineName, string componentName, string amountOfComponents)
+        {
+            var engine = GetEngine(engineName);
+
+            //Проверка на наличие компонента в БД
+            if (!EngineExsistCheck(componentName) && !ComponentExsistCheck(componentName))
+            {
                 // Добавляем новый компонент
                 var newComponent = AddComponent(componentName);
 
                 // Добавляем связь компонента и двигателя
-                engine.EngineComponentAmount.Add(new EngineComponentAmount { engine= engine, component=newComponent, amount = Int32.Parse(amountOfComponents) });
-                SaveChanges();
+                AddComponentEngineAmount(engine, amountOfComponents, newComponent);
+                return true;
             }
-            catch (Exception ex)
+            else
             {
                 // Добавляем существующий компонент
                 var exsistComponent = GetComponent(componentName);
 
-                // Добавляем связь компонента и двигателя
-                engine.EngineComponentAmount.Add(new EngineComponentAmount { engine = engine, component = exsistComponent, amount = Int32.Parse(amountOfComponents) });
-                SaveChanges();
+                if (exsistComponent != null)
+                {
+                    // Добавляем связь компонента и двигателя
+                    AddComponentEngineAmount(engine, amountOfComponents, exsistComponent);
+                    return true;
+                }
             }
+            return false;
         }
 
-        public void AddComponentToComponent(EngineComponent component, string componentName, string amountOfComponents)
+        private void AddComponentEngineAmount(Engine engine, string amountOfComponents, EngineComponent newComponent)
         {
-            //Проверка на наличие компонента в БД
-            try
-            {
-                DublicateEngineCheck(componentName);
-                DublicateComponentCheck(componentName);
-                //TODO Когда добавляем существующий компонент верхнего уровня в компонент нижнего уровня
+            engine.EngineComponentAmount.Add(new EngineComponentAmount { engine = engine, component = newComponent, amount = Int32.Parse(amountOfComponents) });
+            SaveChanges();
+        }
 
+        public bool AddComponentToComponent(string componentName, string nesterdComponentName, string amountOfComponents)
+        {
+            var component = GetComponent(componentName);
+
+            //Проверка на наличие компонента в БД
+            if (!EngineExsistCheck(nesterdComponentName) && !ComponentExsistCheck(nesterdComponentName))
+            {
+                //TODO Когда добавляем существующий компонент верхнего уровня в компонент нижнего уровня
                 // Добавляем новый компонент
-                var newComponent = AddComponent(componentName);
+                var newComponent = AddComponent(nesterdComponentName);
 
                 // Добавляем связь компонента и компонента
-                component.ComponentComponentAmounts.Add(new ComponentComponentAmount { firstComponentId = component.id, secondComponentId = newComponent.id, amount = Int32.Parse(amountOfComponents) });
-                SaveChanges();
+                AddComponentComponentAmount(component, amountOfComponents, newComponent);
+                return true;
             }
-            catch (Exception ex)
+            else
             {
                 // Берем существующий компонент
-                var exsistComponent = GetComponent(componentName);
+                var exsistComponent = GetComponent(nesterdComponentName);
 
-                // Добавляем связь компонента и компонента
-                component.ComponentComponentAmounts.Add(new ComponentComponentAmount { firstComponentId = component.id, secondComponentId = exsistComponent.id, amount = Int32.Parse(amountOfComponents) });
-                SaveChanges();
+                if (exsistComponent != null)
+                {
+                    // Добавляем связь компонента и компонента
+                    AddComponentComponentAmount(component, amountOfComponents, exsistComponent);
+                    return true;
+                }
             }
+            return false;
+        }
+
+        private void AddComponentComponentAmount(EngineComponent component, string amountOfComponents, EngineComponent newComponent)
+        {
+            component.ComponentComponentAmounts.Add(new ComponentComponentAmount
+            {
+                firstComponentId = component.id,
+                secondComponentId = newComponent.id,
+                amount = Int32.Parse(amountOfComponents)
+            });
+            SaveChanges();
         }
 
         private EngineComponent AddComponent(string componentName)
@@ -135,80 +157,80 @@ namespace PDMEnginesApp.model.service
             return comp;
         }
 
-        public void RenameEngine(string oldEngineName, string newEngineName)
+        public bool RenameEngine(string oldEngineName, string newEngineName)
         {
-            try
+            if (!EngineExsistCheck(newEngineName) && !ComponentExsistCheck(newEngineName))
             {
-                DublicateEngineCheck(newEngineName);
-                DublicateComponentCheck(newEngineName);
-
                 var engine = GetEngine(oldEngineName);
                 engine.name = newEngineName;
 
                 engines.Update(engine);
                 SaveChanges();
-            } catch (Exception ex)
-            {
-                throw new InvalidOperationException();
+                return true;
             }
+            return false;
         }
 
-        public void RenameComponent(string oldComponentName, string newComponentName)
+        public bool RenameComponent(string oldComponentName, string newComponentName)
         {
-            try
+            if (!EngineExsistCheck(newComponentName) && !ComponentExsistCheck(newComponentName))
             {
-                DublicateEngineCheck(newComponentName);
-                DublicateComponentCheck(newComponentName);
-
                 var component = GetComponent(oldComponentName);
                 component.name = newComponentName;
 
                 components.Update(component);
                 SaveChanges();
+                return true;
             }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException();
-            }
-
+            return false;
         }
 
         // TODO Сделать каскадное удаление, если его компоенты нигде больше не используются
         public void DeleteEngine(string engineName)
         {
             var engine = GetEngine(engineName);
-            engines.Remove(engine);
-            SaveChanges();
+            if (engine != null)
+            {
+                engines.Remove(engine);
+                SaveChanges();
+            }
         }
 
         // TODO Сделать каскадное удаление, если его компоенты нигде больше не используются
         public void DeleteComponent(string componentName)
         {
             var component = GetComponent(componentName);
-            components.Remove(component);
-            SaveChanges();
+            if (component != null)
+            {
+                components.Remove(component);
+                SaveChanges();
+            }
         }
 
         // Проверка на наличие дубликата двигателя
-        private void DublicateEngineCheck(string engineName)
+        private bool EngineExsistCheck(string engineName)
         {
             var engine = GetEngine(engineName);
 
             if (engine != null)
             {
-                throw new DublicateException(engineName);
+                MessageBox.Show($"Элемент {engineName} уже существует в базе данных");
+                return true;
             }
+            return false;
         }
 
         // Проверка на наличие дубликата компонента
-        private void DublicateComponentCheck(string componentName)
+        private bool ComponentExsistCheck(string componentName)
         {
             var component = GetComponent(componentName);
 
             if (component != null)
             {
-                throw new DublicateException(componentName);
+                MessageBox.Show($"Элемент {componentName} уже существует в базе данных");
+                return true;
             }
+            return false;
         }
     }
 }
