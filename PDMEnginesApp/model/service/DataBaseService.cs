@@ -168,7 +168,7 @@ namespace PDMEnginesApp.model.service
             SaveChanges();
         }
 
-        public bool AddComponentToComponent(string componentName, string nesterdComponentName, string amountOfComponents)
+        public bool AddComponentToComponent(string componentName, string nesterdComponentName, string amountOfComponents, string engineName)
         {
             var component = GetComponent(componentName);
 
@@ -180,7 +180,7 @@ namespace PDMEnginesApp.model.service
                 var newComponent = AddComponent(nesterdComponentName);
 
                 // Добавляем связь компонента и компонента
-                AddComponentComponentAmount(component, amountOfComponents, newComponent);
+                AddComponentComponentAmount(component, amountOfComponents, newComponent, engineName);
                 return true;
             }
             else
@@ -191,22 +191,30 @@ namespace PDMEnginesApp.model.service
                 if (exsistComponent != null)
                 {
                     // Добавляем связь компонента и компонента
-                    AddComponentComponentAmount(component, amountOfComponents, exsistComponent);
+                    AddComponentComponentAmount(component, amountOfComponents, exsistComponent, engineName);
                     return true;
                 }
             }
             return false;
         }
 
-        private void AddComponentComponentAmount(EngineComponent component, string amountOfComponents, EngineComponent newComponent)
+        private void AddComponentComponentAmount(EngineComponent component, string amountOfComponents, EngineComponent newComponent, string engineName)
         {
-            component.ComponentComponentAmounts.Add(new ComponentComponentAmount
+            var engine = (from eng in engines
+                          where eng.name == engineName
+                          select eng).FirstOrDefault();
+
+            if (engine != null)
             {
-                firstComponentId = component.id,
-                secondComponentId = newComponent.id,
-                amount = Int32.Parse(amountOfComponents)
-            });
-            SaveChanges();
+                component.ComponentComponentAmounts.Add(new ComponentComponentAmount
+                {
+                    firstComponentId = component.id,
+                    secondComponentId = newComponent.id,
+                    amount = Int32.Parse(amountOfComponents),
+                    engineId = engine.id
+                });
+                SaveChanges();
+            }
         }
 
         private EngineComponent AddComponent(string componentName)

@@ -41,7 +41,7 @@ public interface IPDMService
 
     bool AddEngine(string engineName);
     bool AddComponentToEngine(string engineName, string componentName, string amountOfComponents);
-    bool AddComponentToComponent(string componentName, string nestedComponentName, string amountOfComponents);
+    bool AddComponentToComponent(string componentName, string nestedComponentName, string amountOfComponents, string engineName);
 
     bool RenameEngine(string oldEngineName, string newEngineName);
     bool RenameComponent(string oldComponentName, string newComponentName);

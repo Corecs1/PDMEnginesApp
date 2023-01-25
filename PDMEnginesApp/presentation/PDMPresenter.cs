@@ -74,11 +74,16 @@ namespace PDMEnginesApp.presentation
                     var engineName = view.TreeView.SelectedNode.Text;
                     AddComponentToEngine(engineName, componentName, amountOfComponents);
                 }
-                else
+                else if (view.TreeView.SelectedNode.Level == 1)
                 {
                     var selectedCompName = view.TreeView.SelectedNode.Text;
+                    var engineName = view.TreeView.SelectedNode.Parent.ToString().Split(":")[1].Trim();
                     selectedCompName = selectedCompName.Split(',')[0];
-                    AddComponentToComponent(selectedCompName, componentName, amountOfComponents);
+                    AddComponentToComponent(selectedCompName, componentName, amountOfComponents, engineName);
+                }
+                else
+                {
+                    MessageBox.Show("Превышен лимит уровня вложенности компонентов");
                 }
             }
         }
@@ -94,11 +99,11 @@ namespace PDMEnginesApp.presentation
 
         // Метод добавляет компонент к компоненту
         // TODO Когда добавляем существущий компонент в компонент он не должен добавляться
-        private void AddComponentToComponent(string componentName, string nestedComponentName, string amountOfComponents)
+        private void AddComponentToComponent(string componentName, string nestedComponentName, string amountOfComponents, string engineName)
         {
-            if (service.AddComponentToComponent(componentName, nestedComponentName, amountOfComponents))
+            if (service.AddComponentToComponent(componentName, nestedComponentName, amountOfComponents, engineName))
             {
-                AddTreeNodeComponent(componentName, amountOfComponents);
+                AddTreeNodeComponent(nestedComponentName, amountOfComponents);
             }
         }
 

@@ -8,6 +8,7 @@ namespace PDMEnginesApp.model.entity
         public int firstComponentId { get; set; }
         public int secondComponentId { get; set; }
         public int amount { get; set; }
+        public int engineId { get; set; }
 
         //public virtual EngineComponent firstComponent { get; set; }
         //public virtual EngineComponent secondComponent { get; set; }
