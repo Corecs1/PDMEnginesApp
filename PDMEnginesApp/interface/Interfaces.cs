@@ -1,4 +1,5 @@
 ﻿using PDMEnginesApp.entity;
+using PDMEnginesApp.model.entity;
 
 public interface IPDMView
 {
@@ -31,6 +32,12 @@ public interface IPDMService
 
     Engine GetEngine(string engineName);
     EngineComponent GetComponent(string componentName);
+
+    ICollection<Engine> InitEngines();
+    ICollection<EngineComponentAmount> GetEngineComponentAmountsByEngine(Engine engine);
+    EngineComponent GetComponentByEngineComponentAmount(EngineComponentAmount eca);
+    ICollection<ComponentComponentAmount> GetComponentComponentAmountsByComponent(EngineComponent engComponent);
+    EngineComponent GetComponentByComponentComponentAmount(ComponentComponentAmount cca, Engine engine);
 
     bool AddEngine(string engineName);
     bool AddComponentToEngine(string engineName, string componentName, string amountOfComponents);

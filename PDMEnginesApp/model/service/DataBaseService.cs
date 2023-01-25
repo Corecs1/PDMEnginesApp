@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using PDMEnginesApp.entity;
 using PDMEnginesApp.model.entity;
 
@@ -24,12 +25,70 @@ namespace PDMEnginesApp.model.service
 
         public ICollection<Engine> GetEngines()
         {
-            throw new NotImplementedException();
+            if (engines == null)
+            {
+                var enginesList = (from e in engines.Include(ca => ca.EngineComponentAmount)
+                                   select e).ToList();
+                if (!enginesList.IsNullOrEmpty())
+                {
+                    return enginesList;
+                }
+            }
+            return engines.ToList<Engine>();
         }
 
         public ICollection<EngineComponent> GetComponents()
         {
-            throw new NotImplementedException();
+            if (components == null)
+            {
+                var componentsList = (from e in components
+                                      select e).ToList();
+                if (!componentsList.IsNullOrEmpty())
+                {
+                    return componentsList;
+                }
+            }
+            return components.ToList<EngineComponent>();
+        }
+        public ICollection<EngineComponentAmount> GetEngineComponentAmountsByEngine(Engine engine)
+        {
+            var engComAmounts = (from eca in engineComponentAmounts
+                                 where eca.engineId == engine.id
+                                 select eca).ToList();
+            return engComAmounts;
+        }
+
+        public EngineComponent GetComponentByEngineComponentAmount(EngineComponentAmount eca)
+        {
+            var engComponent = (from c in components
+                                where c.id == eca.componentId
+                                select c).FirstOrDefault();
+            return engComponent;
+        }
+
+        public ICollection<ComponentComponentAmount> GetComponentComponentAmountsByComponent(EngineComponent engComponent)
+        {
+            var compCompAmounts = (from cca in componentComponentAmounts
+                                   where cca.firstComponentId == engComponent.id
+                                   select cca).ToList();
+            return compCompAmounts;
+        }
+
+        public EngineComponent GetComponentByComponentComponentAmount(ComponentComponentAmount cca, Engine engine)
+        {
+            //var compComp = (from cc in components
+            //                where cc.id == cca.firstComponentId
+            //                && cca.engineId == engine.id
+            //                select cc).FirstOrDefault();
+            //return compComp;
+            return null;
+        }
+
+        public ICollection<Engine> InitEngines()
+        {
+            var enginesList = (from e in engines.Include(ca => ca.EngineComponentAmount)
+                               select e).ToList();
+            return enginesList;
         }
 
         public Engine GetEngine(string engineName)
@@ -41,7 +100,7 @@ namespace PDMEnginesApp.model.service
                               select e).First();
                 return engine;
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException)
             {
                 return null;
             }
@@ -56,7 +115,7 @@ namespace PDMEnginesApp.model.service
                                  select c).First();
                 return component;
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException)
             {
                 return null;
             }
@@ -232,5 +291,6 @@ namespace PDMEnginesApp.model.service
             }
             return false;
         }
+
     }
 }

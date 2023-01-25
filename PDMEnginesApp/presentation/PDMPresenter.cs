@@ -1,4 +1,5 @@
 ﻿using PDMEnginesApp.entity;
+using PDMEnginesApp.model.entity;
 
 namespace PDMEnginesApp.presentation
 {
@@ -20,34 +21,31 @@ namespace PDMEnginesApp.presentation
 
         public void InitData()
         {
-            //private TreeNode parentNode;
+            var engines = service.InitEngines();
 
-            //var engines = (from engine in db.engines.Include(e => e.components)
-            //             select engine).ToList();
-
-            //foreach (Engine engine in engines)
-            //{
-            //    parentNode = PdmTree.Nodes.Add(engine.name);
-            //    initializeComponents(engine, parentNode);
-            //}
-            throw new NotImplementedException();
+            foreach (Engine engine in engines)
+            {
+                var parentNode = view.TreeView.Nodes.Add(engine.name);
+                InitializeComponents(engine, parentNode);
+            }
         }
 
         private void InitializeComponents(Engine engine, TreeNode parentNode)
         {
-            //    TreeNode childNode = null;
+            var engCompAmount = service.GetEngineComponentAmountsByEngine(engine);
 
-            //    foreach (EngineComponent component in engine.components)
-            //    {
-            //        var component_components = (from p in db.components where p.componentId == component.id
-            //                     select p).ToList();
-            //        childNode = parentNode.Nodes.Add(component.name + ", " + component.amount);
+            foreach (EngineComponentAmount eca in engCompAmount)
+            {
+                var engComponent = service.GetComponentByEngineComponentAmount(eca);
+                var childNode = parentNode.Nodes.Add($"{engComponent.name}, {eca.amount}");
+                var compCompAmounts = service.GetComponentComponentAmountsByComponent(engComponent);
 
-            //        foreach (EngineComponent component_component in component_components)
-            //        {
-            //            childNode.Nodes.Add(component_component.name + ", " + component_component.amount);
-            //        }
-            //    }
+                foreach (ComponentComponentAmount cca in compCompAmounts)
+                {
+                    var compComponent = service.GetComponentByComponentComponentAmount(cca, engine);
+                    childNode.Nodes.Add($"{compComponent.name}, {cca.amount}");
+                }
+            }
         }
 
         public void AddEngine()
@@ -74,16 +72,12 @@ namespace PDMEnginesApp.presentation
                 if (view.TreeView.SelectedNode.Level == 0)
                 {
                     var engineName = view.TreeView.SelectedNode.Text;
-                    //var engine = service.GetEngine(enginename);
-
                     AddComponentToEngine(engineName, componentName, amountOfComponents);
                 }
                 else
                 {
                     var selectedCompName = view.TreeView.SelectedNode.Text;
                     selectedCompName = selectedCompName.Split(',')[0];
-
-                    //var component = service.GetComponent(selectedCompName);
                     AddComponentToComponent(selectedCompName, componentName, amountOfComponents);
                 }
             }
@@ -99,6 +93,7 @@ namespace PDMEnginesApp.presentation
         }
 
         // Метод добавляет компонент к компоненту
+        // TODO Когда добавляем существущий компонент в компонент он не должен добавляться
         private void AddComponentToComponent(string componentName, string nestedComponentName, string amountOfComponents)
         {
             if (service.AddComponentToComponent(componentName, nestedComponentName, amountOfComponents))
@@ -164,7 +159,8 @@ namespace PDMEnginesApp.presentation
             }
         }
 
-        //TODO Удаление компонента должно приводить к удалению всех вложенных компонентов, если они не включены в другие составы.
+        //TODO Удаление компонента должно приводить к удалению всех вложенных компонентов, если они не включены в другие составы
+        // а пока удаление происходит всех компонентов.
         public void Delete()
         {
             if (SelectedNodeCheck())
