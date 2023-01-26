@@ -154,9 +154,16 @@ namespace PDMEnginesApp.model.service
 
                 if (exsistComponent != null)
                 {
-                    // Добавляем связь компонента и двигателя
-                    AddComponentEngineAmount(engine, amountOfComponents, exsistComponent);
-                    return true;
+                    var engCompAmount = (from eca in engineComponentAmounts
+                                         where eca.engineId == engine.id
+                                         && eca.componentId == exsistComponent.id
+                                         select eca).FirstOrDefault();
+                    if (engCompAmount == null)
+                    {
+                        // Добавляем связь компонента и двигателя
+                        AddComponentEngineAmount(engine, amountOfComponents, exsistComponent);
+                        return true;
+                    }
                 }
             }
             return false;
@@ -185,14 +192,23 @@ namespace PDMEnginesApp.model.service
             }
             else
             {
+                var engine = GetEngine(engineName);
                 // Берем существующий компонент
                 var exsistComponent = GetComponent(nesterdComponentName);
 
                 if (exsistComponent != null)
                 {
-                    // Добавляем связь компонента и компонента
-                    AddComponentComponentAmount(component, amountOfComponents, exsistComponent, engineName);
-                    return true;
+                    var compCompAmount = (from cca in componentComponentAmounts
+                                         where cca.engineId == engine.id
+                                         && cca.firstComponentId == component.id
+                                         && cca.secondComponentId == exsistComponent.id
+                                         select cca).FirstOrDefault();
+                    if (compCompAmount == null)
+                    {
+                        // Добавляем связь компонента и компонента
+                        AddComponentComponentAmount(component, amountOfComponents, exsistComponent, engineName);
+                        return true;
+                    }
                 }
             }
             return false;

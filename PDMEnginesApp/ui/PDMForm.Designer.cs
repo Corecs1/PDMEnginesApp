@@ -100,7 +100,7 @@
             this.Delete.UseVisualStyleBackColor = true;
             this.Delete.Click += new System.EventHandler(this.btnDelete_Click);
             // 
-            // PDMApp
+            // PDMForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -112,7 +112,7 @@
             this.Controls.Add(this.NameField);
             this.Controls.Add(this.AddEngine);
             this.Controls.Add(this.PdmTree);
-            this.Name = "PDMApp";
+            this.Name = "PDMForm";
             this.Text = "PDMApp";
             this.ResumeLayout(false);
             this.PerformLayout();

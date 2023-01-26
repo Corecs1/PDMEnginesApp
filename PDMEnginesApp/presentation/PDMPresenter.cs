@@ -86,6 +86,10 @@ namespace PDMEnginesApp.presentation
                     MessageBox.Show("Превышен лимит уровня вложенности компонентов");
                 }
             }
+            else
+            {
+                MessageBox.Show("Некорректное добавление компонента");
+            }
         }
 
         // Метод добавляет компонент к двигателю
@@ -115,38 +119,41 @@ namespace PDMEnginesApp.presentation
 
         public void Rename()
         {
-            string newName = view.NameField;
-            string oldName = view.TreeView.SelectedNode.Text.Split(",")[0];
-
-            if (SelectedNodeCheck() && EmptyNameFieldCheck(newName))
+            if (SelectedNodeCheck())
             {
-                if (view.TreeView.SelectedNode.Level == 0)
+                string newName = view.NameField;
+                string oldName = view.TreeView.SelectedNode.Text.Split(",")[0];
+
+                if (SelectedNodeCheck() && EmptyNameFieldCheck(newName))
                 {
-                    if (service.RenameEngine(oldName, newName))
+                    if (view.TreeView.SelectedNode.Level == 0)
                     {
-                        view.TreeView.SelectedNode.Text = (newName);
-                        MessageBox.Show("Двигатель изменен");
-                    }
-                }
-                else
-                {
-                    if (service.RenameComponent(oldName, newName))
-                    {
-                        foreach (TreeNode tree in view.TreeView.Nodes)
+                        if (service.RenameEngine(oldName, newName))
                         {
-                            if (view.TreeView.SelectedNode.Level == 1)
+                            view.TreeView.SelectedNode.Text = (newName);
+                            MessageBox.Show("Двигатель изменен");
+                        }
+                    }
+                    else
+                    {
+                        if (service.RenameComponent(oldName, newName))
+                        {
+                            foreach (TreeNode tree in view.TreeView.Nodes)
                             {
-                                ReplaceTreeNodeComponentName(newName, oldName, tree);
-                            }
-                            else if (view.TreeView.SelectedNode.Level == 2)
-                            {
-                                foreach (TreeNode nestedTree in tree.Nodes)
+                                if (view.TreeView.SelectedNode.Level == 1)
                                 {
-                                    ReplaceTreeNodeComponentName(newName, oldName, nestedTree);
+                                    ReplaceTreeNodeComponentName(newName, oldName, tree);
+                                }
+                                else if (view.TreeView.SelectedNode.Level == 2)
+                                {
+                                    foreach (TreeNode nestedTree in tree.Nodes)
+                                    {
+                                        ReplaceTreeNodeComponentName(newName, oldName, nestedTree);
+                                    }
                                 }
                             }
+                            MessageBox.Show("Компонент изменен");
                         }
-                        MessageBox.Show("Компонент изменен");
                     }
                 }
             }
@@ -193,7 +200,7 @@ namespace PDMEnginesApp.presentation
                         {
                             foreach (TreeNode nestedTree in tree.Nodes)
                             {
-                                DeleteTreeNodeComponent(name, tree);
+                                DeleteTreeNodeComponent(name, nestedTree);
                             }
                         }
                     }
@@ -227,7 +234,7 @@ namespace PDMEnginesApp.presentation
         // Проверка на пустое поле количества
         private bool EmptyAmountFieldCheck(string amount)
         {
-            if (amount == "" || amount == null)
+            if (amount == "" || amount == null || !int.TryParse(amount, out int number))
             {
                 MessageBox.Show("Введите количество");
                 return false;
