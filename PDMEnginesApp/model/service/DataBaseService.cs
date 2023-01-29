@@ -14,7 +14,7 @@ namespace PDMEnginesApp.model.service
 
         public DataBaseService()
         {
-            Database.EnsureDeleted();
+            //Database.EnsureDeleted();
             Database.EnsureCreated();
         }
 
@@ -76,12 +76,11 @@ namespace PDMEnginesApp.model.service
 
         public EngineComponent GetComponentByComponentComponentAmount(ComponentComponentAmount cca, Engine engine)
         {
-            //var compComp = (from cc in components
-            //                where cc.id == cca.firstComponentId
-            //                && cca.engineId == engine.id
-            //                select cc).FirstOrDefault();
-            //return compComp;
-            return null;
+            var compComp = (from cc in components
+                            where cc.id == cca.secondComponentId
+                            && cca.engineId == engine.id
+                            select cc).FirstOrDefault();
+            return compComp;
         }
 
         public ICollection<Engine> InitEngines()
