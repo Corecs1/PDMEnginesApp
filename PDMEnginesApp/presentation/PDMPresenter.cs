@@ -1,4 +1,5 @@
-﻿using PDMEnginesApp.entity;
+﻿using Microsoft.IdentityModel.Tokens;
+using PDMEnginesApp.entity;
 using PDMEnginesApp.model.entity;
 
 namespace PDMEnginesApp.presentation
@@ -23,10 +24,13 @@ namespace PDMEnginesApp.presentation
         {
             var engines = service.InitEngines();
 
-            foreach (Engine engine in engines)
+            if (!engines.IsNullOrEmpty())
             {
-                var parentNode = view.TreeView.Nodes.Add(engine.name);
-                InitializeComponents(engine, parentNode);
+                foreach (Engine engine in engines)
+                {
+                    var parentNode = view.TreeView.Nodes.Add(engine.name);
+                    InitializeComponents(engine, parentNode);
+                }
             }
         }
 
@@ -34,16 +38,25 @@ namespace PDMEnginesApp.presentation
         {
             var engCompAmount = service.GetEngineComponentAmountsByEngine(engine);
 
-            foreach (EngineComponentAmount eca in engCompAmount)
+            if (!engCompAmount.IsNullOrEmpty())
             {
-                var engComponent = service.GetComponentByEngineComponentAmount(eca);
-                var childNode = parentNode.Nodes.Add($"{engComponent.name}, {eca.amount}");
-                var compCompAmounts = service.GetComponentComponentAmountsByComponent(engComponent);
-
-                foreach (ComponentComponentAmount cca in compCompAmounts)
+                foreach (EngineComponentAmount eca in engCompAmount)
                 {
-                    var compComponent = service.GetComponentByComponentComponentAmount(cca, engine);
-                    childNode.Nodes.Add($"{compComponent.name}, {cca.amount}");
+                    var engComponent = service.GetComponentByEngineComponentAmount(eca);
+                    var childNode = parentNode.Nodes.Add($"{engComponent.name}, {eca.amount}");
+                    var compCompAmounts = service.GetComponentComponentAmountsByComponent(engComponent);
+
+                    if (!compCompAmounts.IsNullOrEmpty())
+                    {
+                        foreach (ComponentComponentAmount cca in compCompAmounts)
+                        {
+                            var compComponent = service.GetComponentByComponentComponentAmount(cca, engine);
+                            if (compComponent != null)
+                            {
+                                childNode.Nodes.Add($"{compComponent.name}, {cca.amount}");
+                            }
+                        }
+                    }
                 }
             }
         }

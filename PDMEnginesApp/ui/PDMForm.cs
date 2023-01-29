@@ -1,5 +1,4 @@
-﻿using PDMEnginesApp.entity;
-using PDMEnginesApp.model.service;
+﻿using PDMEnginesApp.model.service;
 using PDMEnginesApp.presentation;
 
 namespace PDMEnginesApp
@@ -18,42 +17,7 @@ namespace PDMEnginesApp
         {
             InitializeComponent();
             presenter = new PDMPresenter(this, new DataBaseService());
-            InitializeData();
-        }
-
-        // TODO Сделать инициализацию данных 
-        // Метод берёт строки из базы данных и инициализирует в ноды treeView
-        private void InitializeData()
-        {
-            //presenter.InitData();
-            //private TreeNode parentNode;
-
-            //var engines = (from engine in db.engines.Include(e => e.components)
-            //             select engine).ToList();
-
-            //foreach (Engine engine in engines)
-            //{
-            //    parentNode = PdmTree.Nodes.Add(engine.name);
-            //    initializeComponents(engine, parentNode);
-            //}
-        }
-
-        // Метод проходится по компонентам двигателя и инициализирует их в childTreeView
-        private void InitializeComponents(Engine engine, TreeNode parentNode)
-        {
-            //    TreeNode childNode = null;
-
-            //    foreach (EngineComponent component in engine.components)
-            //    {
-            //        var component_components = (from p in db.components where p.componentId == component.id
-            //                     select p).ToList();
-            //        childNode = parentNode.Nodes.Add(component.name + ", " + component.amount);
-
-            //        foreach (EngineComponent component_component in component_components)
-            //        {
-            //            childNode.Nodes.Add(component_component.name + ", " + component_component.amount);
-            //        }
-            //    }
+            presenter.InitData();
         }
 
         // Метод добавляет двигатель в базу данных и Node
