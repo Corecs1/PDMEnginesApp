@@ -47,6 +47,6 @@ public interface IPDMService
     bool RenameComponent(string oldComponentName, string newComponentName);
 
     void DeleteEngine(string engineName);
-    void DeleteComponent(string componentName);
+    void DeleteComponent(string componentName, int nestingLevel);
 }
 

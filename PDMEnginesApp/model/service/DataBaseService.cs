@@ -199,10 +199,10 @@ namespace PDMEnginesApp.model.service
                 if (exsistComponent != null)
                 {
                     var compCompAmount = (from cca in componentComponentAmounts
-                                         where cca.engineId == engine.id
-                                         && cca.firstComponentId == component.id
-                                         && cca.secondComponentId == exsistComponent.id
-                                         select cca).FirstOrDefault();
+                                          where cca.engineId == engine.id
+                                          && cca.firstComponentId == component.id
+                                          && cca.secondComponentId == exsistComponent.id
+                                          select cca).FirstOrDefault();
                     if (compCompAmount == null)
                     {
                         // Добавляем связь компонента и компонента
@@ -268,26 +268,103 @@ namespace PDMEnginesApp.model.service
             return false;
         }
 
-        // TODO Сделать каскадное удаление, если его компоенты нигде больше не используются
         public void DeleteEngine(string engineName)
         {
             var engine = GetEngine(engineName);
+
             if (engine != null)
             {
+                var engCompAmount = (from eca in engineComponentAmounts
+                                     where eca.engineId == engine.id
+                                     select eca).ToList();
+
+                if (engCompAmount.Count > 0)
+                {
+                    foreach (EngineComponentAmount eca in engCompAmount)
+                    {
+                        var engineComponents = (from comp in components
+                                                where eca.componentId == comp.id
+                                                select comp).ToList();
+
+                        if (engineComponents.Count > 0)
+                        {
+                            foreach (EngineComponent engComp in engineComponents)
+                            {
+                                DeleteComponent(engComp.name, 1);
+                            }
+                        }
+                    }
+                }
                 engines.Remove(engine);
                 SaveChanges();
             }
         }
 
-        // TODO Сделать каскадное удаление, если его компоенты нигде больше не используются
-        public void DeleteComponent(string componentName)
+        public void DeleteComponent(string componentName, int nestingLevel)
         {
             var component = GetComponent(componentName);
-            if (component != null)
+
+            if (nestingLevel == 1)
+            {
+                DeleteNestedToEngineComponent(component);
+            }
+            else if (nestingLevel == 2)
+            {
+                DeleteNestedToComponentComponent(component);
+            }
+        }
+
+        private void DeleteNestedToEngineComponent(EngineComponent component)
+        {
+            var engCompAmountList = (from eca in engineComponentAmounts
+                                     where eca.componentId == component.id
+                                     select eca).ToList();
+
+            var nestedComponentComponentAmountList = (from cca in componentComponentAmounts
+                                                      where cca.firstComponentId == component.id
+                                                      select cca).ToList();
+
+            if (nestedComponentComponentAmountList.Count > 0)
+            {
+                foreach (ComponentComponentAmount cca in nestedComponentComponentAmountList)
+                {
+                    var nestedComponents = (from comp in components
+                                            where comp.id == cca.secondComponentId
+                                            select comp).ToList();
+
+                    if (nestedComponents != null)
+                    {
+                        foreach (EngineComponent nestedCompoent in nestedComponents)
+                        {
+                            DeleteNestedToComponentComponent(nestedCompoent);
+                        }
+                    }
+
+                }
+            }
+
+            // Если у компонента еще есть связи на вложенные компоненты, то не удаялем компонент, а просто удаляем его связь с двигателем
+            if (engCompAmountList.Count() == 1)
             {
                 components.Remove(component);
                 SaveChanges();
             }
+        }
+
+        private void DeleteNestedToComponentComponent(EngineComponent component)
+        {
+            var compCompAmountList = (from cca in componentComponentAmounts
+                                      where cca.secondComponentId == component.id
+                                      select cca).ToList();
+
+            if (compCompAmountList.Count() == 1)
+            {
+                components.Remove(component);
+                SaveChanges();
+            }
+
+            componentComponentAmounts.Remove(compCompAmountList[0]);
+            SaveChanges();
         }
 
         // Проверка на наличие дубликата двигателя
@@ -315,6 +392,5 @@ namespace PDMEnginesApp.model.service
             }
             return false;
         }
-
     }
 }

@@ -102,7 +102,6 @@ namespace PDMEnginesApp.presentation
         }
 
         // Метод добавляет компонент к компоненту
-        // TODO Когда добавляем существущий компонент в компонент он не должен добавляться
         private void AddComponentToComponent(string componentName, string nestedComponentName, string amountOfComponents, string engineName)
         {
             if (service.AddComponentToComponent(componentName, nestedComponentName, amountOfComponents, engineName))
@@ -171,8 +170,6 @@ namespace PDMEnginesApp.presentation
             }
         }
 
-        //TODO Удаление компонента должно приводить к удалению всех вложенных компонентов, если они не включены в другие составы
-        // а пока удаление происходит всех компонентов.
         public void Delete()
         {
             if (SelectedNodeCheck())
@@ -182,42 +179,25 @@ namespace PDMEnginesApp.presentation
                 if (view.TreeView.SelectedNode.Level == 0)
                 {
                     service.DeleteEngine(name);
-
-                    view.TreeView.SelectedNode.Remove();
-                    MessageBox.Show("Двигатель удален");
+                    DeleteTreeNode("Двигатель");
                 }
-                else
+                else if (view.TreeView.SelectedNode.Level == 1)
                 {
-                    service.DeleteComponent(name);
-
-                    foreach (TreeNode tree in view.TreeView.Nodes)
-                    {
-                        if (view.TreeView.SelectedNode.Level == 1)
-                        {
-                            DeleteTreeNodeComponent(name, tree);
-                        }
-                        else if (view.TreeView.SelectedNode.Level == 2)
-                        {
-                            foreach (TreeNode nestedTree in tree.Nodes)
-                            {
-                                DeleteTreeNodeComponent(name, nestedTree);
-                            }
-                        }
-                    }
-                    MessageBox.Show("Компонент удалён");
+                    service.DeleteComponent(name, 1);
+                    DeleteTreeNode("Компонент");
+                }
+                else if (view.TreeView.SelectedNode.Level == 2)
+                {
+                    service.DeleteComponent(name, 2);
+                    DeleteTreeNode("Компонент");
                 }
             }
         }
 
-        private void DeleteTreeNodeComponent(string name, TreeNode tree)
+        private void DeleteTreeNode(string message)
         {
-            var node = (from n in tree.Nodes.Cast<TreeNode>()
-                        where n.Text.Split(",")[0].Equals(name)
-                        select n).FirstOrDefault();
-            if (node != null)
-            {
-                node.Remove();
-            }
+            view.TreeView.SelectedNode.Remove();
+            MessageBox.Show($"{message} удалён");
         }
 
         // Проверка на пустое поле наименования
