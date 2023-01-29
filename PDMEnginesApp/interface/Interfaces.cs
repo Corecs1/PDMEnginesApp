@@ -1,7 +1,11 @@
 ﻿using PDMEnginesApp.entity;
+using PDMEnginesApp.model.entity;
 
 public interface IPDMView
 {
+    string NameField { get; }
+    string AmountField { get; }
+    TreeView TreeView { get; }
     void btnAddEngine_Click(object sender, EventArgs e);
 
     void btnAddComponent_Click(object sender, EventArgs e);
@@ -13,6 +17,7 @@ public interface IPDMView
 
 public interface IPDMPresenter
 {
+    void InitData();
     void AddEngine();
     void AddComponent();
     void Rename();
@@ -25,14 +30,23 @@ public interface IPDMService
     ICollection<Engine> GetEngines();
     ICollection<EngineComponent> GetComponents();
 
-    void AddEngine(Engine engine);
-    void AddComponent(EngineComponent component);
+    Engine GetEngine(string engineName);
+    EngineComponent GetComponent(string componentName);
 
-    void RenameEngine(Engine engine);
-    void RenameComponent(EngineComponent component);
+    ICollection<Engine> InitEngines();
+    ICollection<EngineComponentAmount> GetEngineComponentAmountsByEngine(Engine engine);
+    EngineComponent GetComponentByEngineComponentAmount(EngineComponentAmount eca);
+    ICollection<ComponentComponentAmount> GetComponentComponentAmountsByComponent(EngineComponent engComponent);
+    EngineComponent GetComponentByComponentComponentAmount(ComponentComponentAmount cca, Engine engine);
 
-    void DeleteEngine(Engine engine);
-    void DeleteComponent(EngineComponent component);
+    bool AddEngine(string engineName);
+    bool AddComponentToEngine(string engineName, string componentName, string amountOfComponents);
+    bool AddComponentToComponent(string componentName, string nestedComponentName, string amountOfComponents, string engineName);
 
+    bool RenameEngine(string oldEngineName, string newEngineName);
+    bool RenameComponent(string oldComponentName, string newComponentName);
+
+    void DeleteEngine(string engineName);
+    void DeleteComponent(string componentName, int nestingLevel);
 }
 

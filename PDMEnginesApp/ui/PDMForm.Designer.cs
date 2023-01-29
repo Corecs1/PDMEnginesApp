@@ -52,7 +52,7 @@
             this.AddEngine.TabIndex = 1;
             this.AddEngine.Text = "Добавить двигатель";
             this.AddEngine.UseVisualStyleBackColor = true;
-            this.AddEngine.Click += new System.EventHandler(this.addEngine);
+            this.AddEngine.Click += new System.EventHandler(this.btnAddEngine_Click);
             // 
             // NameField
             // 
@@ -78,7 +78,7 @@
             this.AddComponent.TabIndex = 7;
             this.AddComponent.Text = "Добавить компонент";
             this.AddComponent.UseVisualStyleBackColor = true;
-            this.AddComponent.Click += new System.EventHandler(this.addComponent);
+            this.AddComponent.Click += new System.EventHandler(this.btnAddComponent_Click);
             // 
             // Rename
             // 
@@ -88,7 +88,7 @@
             this.Rename.TabIndex = 8;
             this.Rename.Text = "Переименовать";
             this.Rename.UseVisualStyleBackColor = true;
-            this.Rename.Click += new System.EventHandler(this.rename);
+            this.Rename.Click += new System.EventHandler(this.btnRename_Click);
             // 
             // Delete
             // 
@@ -98,9 +98,9 @@
             this.Delete.TabIndex = 9;
             this.Delete.Text = "Удалить";
             this.Delete.UseVisualStyleBackColor = true;
-            this.Delete.Click += new System.EventHandler(this.delete);
+            this.Delete.Click += new System.EventHandler(this.btnDelete_Click);
             // 
-            // PDMApp
+            // PDMForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -112,7 +112,7 @@
             this.Controls.Add(this.NameField);
             this.Controls.Add(this.AddEngine);
             this.Controls.Add(this.PdmTree);
-            this.Name = "PDMApp";
+            this.Name = "PDMForm";
             this.Text = "PDMApp";
             this.ResumeLayout(false);
             this.PerformLayout();
